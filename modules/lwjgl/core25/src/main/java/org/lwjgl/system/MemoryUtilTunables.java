@@ -40,6 +40,8 @@ final class MemoryUtilTunables {
 
      See memcpy for tuning details.
     */
+    // MemorySegment.asSlice does not have @ForceInline, consider to make memcpy stuff use MemorySegment.copy
+    // and for memset.. just hopefully hope jit will inline it :D
     static void memset(long ptr, int value, long bytes) {
         var b = (byte)(value & 0xFF);
 
