@@ -44,10 +44,7 @@ final class MemoryUtilTunables {
         var b = (byte)(value & 0xFF);
 
         if (bytes < NATIVE_THRESHOLD_FILL) {
-            MemorySegment
-                .ofAddress(ptr)
-                .reinterpret(bytes)
-                .fill(b);
+            MS_UNLIMITED0.asSlice(ptr, bytes).fill(b);
         /*} else if (bytes < VECTOR_THRESHOLD_FILL) {
             memsetMid(ptr, b, bytes);*/
         } else {
@@ -60,16 +57,10 @@ final class MemoryUtilTunables {
             // Does not hurt on non-x64.
             var lastByteIndex = bytes - 1L;
 
-            MemorySegment
-                .ofAddress(ptr)
-                .reinterpret(lastByteIndex + (bytes & 1L))
-                .fill(b);
+            MS_UNLIMITED0.asSlice(ptr, lastByteIndex + (bytes & 1L)).fill(b);
 
             // write (or re-write) last byte
-            MemorySegment
-                .ofAddress(ptr + lastByteIndex)
-                .reinterpret(1L)
-                .set(ValueLayout.JAVA_BYTE, 0L, b);
+            MS_UNLIMITED0.set(ValueLayout.JAVA_BYTE, ptr + lastByteIndex, b);
         }
     }
 
@@ -149,8 +140,8 @@ final class MemoryUtilTunables {
     */
     static void memcpy(long src, long dst, long bytes) {
         if (bytes < NATIVE_THRESHOLD_COPY) {
-            var S = MemorySegment.ofAddress(src).reinterpret(bytes);
-            var D = MemorySegment.ofAddress(dst).reinterpret(bytes);
+            var S = MS_UNLIMITED0.asSlice(src, bytes);
+            var D = MS_UNLIMITED0.asSlice(dst, bytes);
 
             D.copyFrom(S);
         /*} else if (bytes < VECTOR_THRESHOLD_COPY) {
@@ -166,8 +157,8 @@ final class MemoryUtilTunables {
             var lastByteIndex = bytes - 1L;
             var copyBytes     = lastByteIndex + (bytes & 1L);
 
-            var S = MemorySegment.ofAddress(src).reinterpret(copyBytes);
-            var D = MemorySegment.ofAddress(dst).reinterpret(copyBytes);
+            var S = MS_UNLIMITED0.asSlice(src, copyBytes);
+            var D = MS_UNLIMITED0.asSlice(dst, copyBytes);
 
             D.copyFrom(S);
 
@@ -228,7 +219,7 @@ final class MemoryUtilTunables {
     private static void memcpy(MemorySegment src, long dst, long offset, long bytes) {
         if (bytes < NATIVE_THRESHOLD_COPY) {
             var S = src.asSlice(offset, bytes);
-            var D = MemorySegment.ofAddress(dst).reinterpret(bytes);
+            var D = MS_UNLIMITED0.asSlice(dst, bytes);
 
             D.copyFrom(S);
         } else {
@@ -236,7 +227,7 @@ final class MemoryUtilTunables {
             var copyBytes     = lastByteIndex + (bytes & 1L);
 
             var S = src.asSlice(offset, copyBytes);
-            var D = MemorySegment.ofAddress(dst).reinterpret(copyBytes);
+            var D = MS_UNLIMITED0.asSlice(dst, copyBytes);
 
             D.copyFrom(S);
 
@@ -270,7 +261,7 @@ final class MemoryUtilTunables {
 
     private static void memcpy(long src, MemorySegment dst, long offset, long bytes) {
         if (bytes < NATIVE_THRESHOLD_COPY) {
-            var S = MemorySegment.ofAddress(src).reinterpret(bytes);
+            var S = MS_UNLIMITED0.asSlice(src, bytes);
             var D = dst.asSlice(offset, bytes);
 
             D.copyFrom(S);
@@ -278,7 +269,7 @@ final class MemoryUtilTunables {
             var lastByteIndex = bytes - 1L;
             var copyBytes     = lastByteIndex + (bytes & 1L);
 
-            var S = MemorySegment.ofAddress(src).reinterpret(copyBytes);
+            var S = MS_UNLIMITED0.asSlice(src, copyBytes);
             var D = dst.asSlice(offset, copyBytes);
 
             D.copyFrom(S);

@@ -2,6 +2,7 @@
 /bin
 /wiki
 .gradle
+.idea
 .DS_Store
 *.bat
 *.conf
